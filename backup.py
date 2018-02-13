@@ -21,15 +21,16 @@ def is_valid_dokku(dokku_command=None):
         - bool Whether dokku_command is a valid dokku command
     """
     dokku_command = dokku_command or args.dokku_command
+    dokku_command = dokku_command.split(' ')
     msg = 'Invalid dokku-command path.'
     try:
-        process = subprocess.run([dokku_command, 'version'], check=False)
-        return True
+        process = subprocess.run(dokku_command + ['version'], 
+            stdout=subprocess.PIPE, check=False)
     except Exception as e:
         raise argparse.ArgumentTypeError(msg)
     if process.returncode:
         raise argparse.ArgumentTypeError(msg)
-    return process.returncode
+    return dokku_command
     
 
 if __name__ == "__main__":
@@ -38,7 +39,4 @@ if __name__ == "__main__":
     parser.add_argument('--dbs', type=str, help='Comma delimited db instance names to backup.')
     parser.add_argument('--debug', type=bool, help='Display additional debug information.')
     args = parser.parse_args()
-    print(args.dokku_binary)
-    print(is_valid_dokku())
-#    print(get_all_db_names())    
 
