@@ -8,5 +8,6 @@ install:
 # command to run tests
 script:
   - pytest
+  - pytest --cov=backup test/
 after_success:
   - coveralls
