@@ -28,5 +28,4 @@ Setting up
         pip install -r requirements.txt
 
 > You only have to run through the setup process once. However, you **must run
-> `source env/bin/activate` every time you work in the repo.** The command activates
-> the tools we use to publish our website.
+> `source env/bin/activate` every time you work in the repo.**
