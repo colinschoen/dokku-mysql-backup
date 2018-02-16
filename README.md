@@ -1,13 +1,16 @@
-# dokku-mysql-backup
-Python script to backup all dokku mysql instances to Google Cloud.
+Dokku Mysql Backup
+==============
+
+Python script to backup dokku-mysql DB dumps
 
 [![Build Status](https://travis-ci.org/colinschoen/dokku-mysql-backup.svg?branch=master)](https://travis-ci.org/colinschoen/dokku-mysql-backup)
 [![Coverage Status](https://coveralls.io/repos/github/colinschoen/dokku-mysql-backup/badge.svg?branch=master)](https://coveralls.io/github/colinschoen/dokku-mysql-backup?branch=master)
 
-Dokku Mysql Backup
-==============
+Usage:
+---------
 
-Setting up
+
+Development: Setting up
 ----------
 
 1. Install [Python 3.4 or above](https://www.python.org/downloads/) and
