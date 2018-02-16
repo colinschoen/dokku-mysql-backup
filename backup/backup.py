@@ -5,9 +5,16 @@ import random
 import subprocess
 import string
 
+from google.cloud import storage
+
 DEFAULT_DOKKU_COMMAND = "/usr/bin/dokku"
 FILE_NAME_FORMAT = "{db_name}_{year}_{month}_{day}_{hash}"
 FILE_EXTENSION = ".sql"
+
+def gcs_upload(bucket_id, f, dest_path):
+    pass
+
+    
 
 def backup():
     db_names = get_all_db_names()
@@ -71,11 +78,14 @@ def is_valid_dokku(dokku_command=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Backup dokku-mysql instances to Google Cloud')
+    parser = argparse.ArgumentParser(description='Backup dokku-mysql instances.')
     parser.add_argument('--dokku-command', help='Dokku command to run (defaults to /usr/bin/dokku)', default='DEFAULT_DOKKU_COMMAND', type=is_valid_dokku)
     parser.add_argument('--dbs', type=str, help='Comma delimited db instance names to backup.')
     parser.add_argument('--backup-dir', type=is_valid_dir, default=os.getcwd(), help='The directory to place db dumps in.')
+    parser.add_argument('--gcloud-key-file', type=str, help='Path to Google Cloud .json key file.')
     parser.add_argument('--debug', type=bool, help='Display additional debug information.')
     args = parser.parse_args()
+
+    # Let's do this thing...
     backup()
 
