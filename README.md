@@ -2,6 +2,7 @@
 Python script to backup all dokku mysql instances to Google Cloud.
 
 [![Build Status](https://travis-ci.org/colinschoen/dokku-mysql-backup.svg?branch=master)](https://travis-ci.org/colinschoen/dokku-mysql-backup)
+[![Coverage Status](https://coveralls.io/repos/github/colinschoen/dokku-mysql-backup/badge.svg?branch=master)](https://coveralls.io/github/colinschoen/dokku-mysql-backup?branch=master)
 
 Dokku Mysql Backup
 ==============
@@ -30,5 +31,4 @@ Setting up
         pip install -r requirements.txt
 
 > You only have to run through the setup process once. However, you **must run
-> `source env/bin/activate` every time you work in the repo.** The command activates
-> the tools we use to publish our website.
+> `source env/bin/activate` every time you work in the repo.**
