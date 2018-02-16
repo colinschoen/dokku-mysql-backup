@@ -30,6 +30,7 @@ def backup():
         with open(full_path, "w") as f:
             f.write(dump)
         print(file_name + FILE_EXTENSION)
+    print("{} databases backed up. Backup complete.".format(len(db_names)))
 
 def get_all_db_names():
     command = ['mysql:list']
