@@ -1,6 +1,7 @@
 import argparse
 import configargparse
 import datetime
+import gcs_client
 import hashlib
 import os
 import random
@@ -8,27 +9,50 @@ import subprocess
 import string
 import functools
 
-from google.cloud import storage
 
 DEFAULT_DOKKU_COMMAND = "/usr/bin/dokku"
 STORAGE_PROVIDERS = [
-        'local' # Backup to local machine
+        'local', # Backup to local machine
         'gcs' # Google Cloud Storage
         ]
 FILE_NAME_FORMAT = "{db_name}_{year}_{month}_{day}_{hash}"
 FILE_EXTENSION = ".sql"
 
-def gcs_upload(bucket_id, f, dest_path):
-    storage_client = storage.Client()
+@functools.lru_cache(maxsize=32)
+def get_gcs_client():
+    credentials = gcs_client.Credentials(args.gcloud_key_file)
+    project = gcs_client.Project(args.gcloud_project_id, credentials)
+    return project
 
-    
+def write_gcs_file(gcs_client, bucket_id, f, dest_path):
+    buckets = gcs_client.list()
+    my_bucket = None
+    for bucket in buckets:
+        if bucket.name == "bucket_id":
+            my_bucket = bucket_id
 
+def is_valid_storage_provider(storage_provider):
+    storage_provider = storage_provider or args.storage_method
+    if storage_provider not in STORAGE_PROVIDERS:
+        msg = 'Invalid storage provider {}. Valid providers: {}'.format(
+                storage_provider,
+                ','.join(STORAGE_PROVIDERS))
+        raise argparse.ArgumentTypeError(msg)
+    return storage_provider
+
+def is_valid_bucket(bucket=None):
+    bucket = bucket or args.gcloud_bucket_id
+    project = get_gcs_client()
+    buckets = [b.name for b in project.list()]
+                                                                                        
 def backup():
     command = 'mysql:export {db_name}'
     now = datetime.datetime.now()
     print("Starting backup...")
     print("Dumping to {}".format(args.backup_dir))
     print("Backing up dbs")
+    if args.storage_method == 'gcs':
+        gcs_client = get_gcs_client()
     for db_name in args.dbs:
         print("===> {}".format(db_name))
         random_chars  = ''.join(random.choice(string.ascii_lowercase) for _ in range(5))
@@ -39,8 +63,9 @@ def backup():
             stdout=subprocess.PIPE, check=False)
         dump = process.stdout.decode("utf-8")
         full_path = os.path.join(args.backup_dir, file_name + FILE_EXTENSION)
+        print(args.storage_method)
         if args.storage_method == 'gcs':
-            gcs_upload("bid", dump, full_path)
+            write_gcs_file(gcs_client, "bid", dump, full_path)
         else:
             write_local_file(dump, full_path)
         print(file_name + FILE_EXTENSION)
@@ -115,7 +140,8 @@ if __name__ == "__main__":
     conf_parser.add('--backup-dir', type=is_valid_dir, default=os.getcwd(), help='The directory to place db dumps in.')
     conf_parser.add('--gcloud-key-file', type=str, help='Path to Google Cloud .json key file.')
     conf_parser.add('--gcloud-project-id', type=str, help='Path to Google Cloud .json key file.')
-    conf_parser.add('--storage-method', type=lambda sp: sp in STORAGE_PROVIDERS, help='An external storage provider to upload database dumps to. ({})'.format(STORAGE_PROVIDERS), default='local')
+    conf_parser.add('--gcloud-bucket-id', type=str, help='Name of Google Cloud Storage bucket SQL dumps should be uploaded to.')
+    conf_parser.add('--storage-method', type=is_valid_storage_provider, help='An external storage provider to upload database dumps to. ({})'.format(STORAGE_PROVIDERS), default='local')
     conf_parser.add('--debug', type=bool, help='Display additional debug information.')
 
     args = conf_parser.parse_args()
