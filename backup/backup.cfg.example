@@ -1,0 +1,5 @@
+[backup]
+gcloud-project-id=proj-id
+gcloud-key-file=/Path/to/key/file.json
+gcloud-bucket-id=bucket-id
+storage-method=gcs
