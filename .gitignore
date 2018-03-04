@@ -102,3 +102,7 @@ ENV/
 
 # config
 backup.cfg
+
+
+# pytest
+.pytest_cache/
