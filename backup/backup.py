@@ -1,12 +1,17 @@
+from google.cloud import storage
+from google.oauth2 import service_account
+
 import argparse
 import configargparse
 import datetime
-import gcs_client
+import google.oauth2
 import hashlib
+import json
 import os
 import random
 import subprocess
 import string
+import textwrap
 import functools
 
 
@@ -20,16 +25,19 @@ FILE_EXTENSION = ".sql"
 
 @functools.lru_cache(maxsize=32)
 def get_gcs_client():
-    credentials = gcs_client.Credentials(args.gcloud_key_file)
-    project = gcs_client.Project(args.gcloud_project_id, credentials)
-    return project
+    with open(args.gcloud_key_file) as f:
+        json_creds = json.load(f)
+    credentials = service_account.Credentials.from_service_account_info(
+            json_creds
+            )
+    client = storage.Client(args.gcloud_project_id, credentials)
+    return client
 
-def write_gcs_file(gcs_client, bucket_id, f, dest_path):
-    buckets = gcs_client.list()
-    my_bucket = None
-    for bucket in buckets:
-        if bucket.name == "bucket_id":
-            my_bucket = bucket_id
+def write_gcs_file(gcs_client, bucket_id, dump, dest_path):
+    bucket = gcs_client.bucket(bucket_id)
+    blob = bucket.blob(dest_path)
+    blob.upload_from_string(dump)
+
 
 def is_valid_storage_provider(storage_provider):
     storage_provider = storage_provider or args.storage_method
@@ -42,7 +50,7 @@ def is_valid_storage_provider(storage_provider):
 
 def is_valid_bucket(bucket=None):
     bucket = bucket or args.gcloud_bucket_id
-    project = get_gcs_client()
+    credentials = get_gcs_credentials()
     buckets = [b.name for b in project.list()]
                                                                                         
 def backup():
@@ -57,18 +65,17 @@ def backup():
         print("===> {}".format(db_name))
         random_chars  = ''.join(random.choice(string.ascii_lowercase) for _ in range(5))
         file_name = FILE_NAME_FORMAT.format(db_name=db_name, year=now.year,
-                month=now.month, day=now.day, hash=random_chars)
+                month=now.month, day=now.day, hash=random_chars) + FILE_EXTENSION
         process = subprocess.run(args.dokku_command + [command.format(
             db_name=db_name)],
             stdout=subprocess.PIPE, check=False)
         dump = process.stdout.decode("utf-8")
-        full_path = os.path.join(args.backup_dir, file_name + FILE_EXTENSION)
-        print(args.storage_method)
+        full_path = os.path.join(args.backup_dir, file_name)
         if args.storage_method == 'gcs':
-            write_gcs_file(gcs_client, "bid", dump, full_path)
+            write_gcs_file(gcs_client, args.gcloud_bucket_id, dump, file_name)
         else:
             write_local_file(dump, full_path)
-        print(file_name + FILE_EXTENSION)
+        print(file_name)
     print("{} databases backed up. Backup complete.".format(len(args.dbs)))
 
 def write_local_file(dump, path):
@@ -83,6 +90,7 @@ def sanitize_dbs(db_names=None):
     valid_db_names = get_all_db_names()
     for db_name in db_names:
         if db_name not in valid_db_names:
+            msg = 'Invalid database name {}.'.format(db_name)
             raise argparse.ArgumentTypeError(msg)
     return db_names
 
