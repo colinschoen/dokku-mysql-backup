@@ -25,9 +25,9 @@ This will only backup databases `db1` and `db2`.
 
 Database dumps can also be configured to automatically push to a [Google Cloud Storage (GCS)](https://cloud.google.com/storage/) Bucket. The following additional configuration values need to be set to backup to GCS:
 
-* `gcloud-project-id` The Google Cloud [Project Id](https://support.google.com/cloud/answer/6158840?hl=en)
+* `gcloud-project-id` [Google Cloud Project Id](https://support.google.com/cloud/answer/6158840?hl=en).
 * `gcloud-key-file` Path to the .json key export for a [service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts) authorized to upload objects to the desired bucket. 
-* `gcloud-bucket-id` Name of the bucket to upload dumps to ()
+* `gcloud-bucket-id` Name of the bucket to upload dumps to.
 * `storage-method` Set to `gcs`.
 
 
