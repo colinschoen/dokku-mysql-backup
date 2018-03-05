@@ -95,10 +95,10 @@ def sanitize_dbs(db_names=None):
     return db_names
 
 
-@functools.lru_cache(maxsize=32)
-def get_all_db_names():
+def get_all_db_names(dokku_command=None):
+    dokku_command = dokku_command or args.dokku_command
     command = ['mysql:list']
-    process = subprocess.run(args.dokku_command + command,
+    process = subprocess.run(dokku_command + command,
             stdout=subprocess.PIPE, check=False)
     rows = process.stdout.decode("utf-8").split('\n')
     db_names = [row.split(' ')[0]for row in rows[1:] if row.split(' ')[0]]
