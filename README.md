@@ -12,15 +12,15 @@ Usage:
 Navigate to the `backup` directory and find the `backup.py` file. 
 
 	python3 backup.py --dokku-command "ssh dokku@your-remote-host.com"
-			--backup-dir /Path/to/backup/dir
+			--backup-dir "/Path/to/backup/dir"
 
 This will dump all mysql database instances on your dokku platform to `backup-dir`. 
 
 Databases can be selectively backed up using the `--dbs` flag.
 
 	python3 backup.py --dokku-command "ssh dokku@your-remote-host.com"
-			--backup-dir /Path/to/backup/dir
-			--dbs db1,db2
+			--backup-dir "/Path/to/backup/dir"
+			--dbs "db1,db2"
 This will only backup databases `db1` and `db2`. 
 
 Database dumps can also be configured to automatically push to a [Google Cloud Storage (GCS)](https://cloud.google.com/storage/) Bucket. The following additional configuration values need to be set to backup to GCS:
