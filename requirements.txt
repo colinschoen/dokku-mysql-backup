@@ -5,7 +5,6 @@ configargparse==0.13.0
 coverage==4.0.3
 coveralls==1.2.0
 google-cloud-storage==1.7.0
-gcs-client==0.2.2
 idna==2.6
 pluggy==0.6.0
 py==1.5.2
