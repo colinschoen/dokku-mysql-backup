@@ -1,9 +1,12 @@
 import subprocess
 import argparse
 import os
+import json
 import pytest
 from backup import backup
 from pytest_mock import mocker
+
+TEST_ASSETS_DIR = "test/assets/"
 
 class TestCass(object):
 
@@ -62,4 +65,20 @@ class TestCass(object):
         with pytest.raises(argparse.ArgumentTypeError):
             dokku_command = backup.is_valid_dokku(dokku_command="bad")
         
-
+    def test_get_all_db_names(self, mocker):
+        mock_subprocess_run = mocker.patch.object(subprocess, 'run', autospec=True)
+        mock_completed_process = mocker.patch.object(subprocess, 'CompletedProcess', autospec=True)
+        # Use a cached output for the mysql:list command
+        with open(os.path.join(TEST_ASSETS_DIR, 'db_list_raw.txt'), 'rb') as f:
+            contents = f.read()
+            mock_completed_process.stdout = contents
+            mock_subprocess_run.return_value = mock_completed_process
+        # Use cached json list of db name
+        with open(os.path.join(TEST_ASSETS_DIR, 'db_list.json')) as f:
+            db_list = json.load(f)
+        cmd = ['usr/bin/dokku']
+        sub_command = ['mysql:list']
+        backup_db_list = backup.get_all_db_names(dokku_command=cmd)
+        assert backup_db_list == db_list
+        mock_subprocess_run.assert_called_with(cmd + sub_command,
+            check=mocker.ANY, stdout=mocker.ANY)
