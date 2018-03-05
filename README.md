@@ -34,7 +34,7 @@ Database dumps can also be configured to automatically push to a [Google Cloud S
 Development: Setting up
 ----------
 
-1. Install [Python 3.4 or above](https://www.python.org/downloads/) and
+1. Install [Python 3.6 or above](https://www.python.org/downloads/) and
    [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html)
 2. Clone this repository:
 
