@@ -7,7 +7,7 @@ coveralls==1.2.0
 google-cloud-storage==1.7.0
 idna==2.6
 pluggy==0.6.0
-py==1.5.2
+py==1.10.0
 pyOpenSSL==17.5.0
 pytest==3.4.0
 pytest-cov==2.5.1
